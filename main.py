@@ -76,15 +76,15 @@
 #     vector_store_manager.get_vectorstore()
 
 
-from fastapi import FastAPI, HTTPException
+from fastapi import Body, FastAPI, HTTPException
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
-from schemas import CategoryKeywordsModel
+from schemas import CategoryKeywordsModel, SentimentModel
 from models import CategoryKeywords
 from fastapi.responses import JSONResponse
 from starlette.requests import Request
 from vector_store import vector_store_manager
-from utils import get_search_keywords
+from utils import get_search_keywords, get_sentiment_score
 
 app = FastAPI()
 
@@ -139,6 +139,21 @@ def get_keywords(keyword: str):
     except Exception as e:
         print(f"An error occurred: {e}")
         raise HTTPException(status_code=500, detail="An error occurred while processing the request.")
+    
+
+@app.post("/sentiment")
+def get_sentiment(text: SentimentModel):
+    try:
+        
+        # print(text)
+        score = get_sentiment_score(text)
+        print(score)
+        return {"score": score}
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        raise HTTPException(status_code=500, detail="An error occurred while processing the request.")
+
 
     
     # retriever = vectorstore.as_retriever()

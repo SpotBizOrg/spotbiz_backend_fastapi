@@ -8,3 +8,6 @@ class CategoryKeywordsModel(BaseModel):
     electronic: List[str]
     stationery: List[str]
     hotels: List[str]
+
+class SentimentModel(BaseModel):
+    text: str

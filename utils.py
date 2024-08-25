@@ -12,6 +12,12 @@ import re
 load_dotenv()
 groq_api_key = os.getenv("GROQ_API_KEY")
 
+def extract_number(text):
+    match = re.search(r'\d+', text)
+    if match:
+        return int(match.group())  # Convert the extracted number to an integer
+    return None  # Return None if no number is found
+
 def extract_keywords_from_brackets(text):
     # Regex pattern to find text between square brackets
     pattern = r"\[(.*?)\]"
@@ -57,8 +63,8 @@ def get_search_keywords(search_text, vectorstore):
     )
 
     retriever = vectorstore.as_retriever()
-    docs = retriever.invoke("food")
-    print(f"document objets: {docs}")
+    # docs = retriever.invoke("food")
+    # print(f"document objets: {docs}")
 
     output_parser = StrOutputParser()
 
@@ -76,5 +82,37 @@ def get_search_keywords(search_text, vectorstore):
 
     return extract_keywords_from_brackets(text)
 
+def get_sentiment_score(text):
 
+    print(text)
+    llm = ChatGroq(temperature=0, model_name="llama3-70b-8192", api_key=groq_api_key)
+
+    prompt = ChatPromptTemplate.from_messages(
+        [
+        ("system", """
+            
+            You are a helpful assistant that gives the sentiment score out of 5 of the given text.
+            Return the output only as follows: socre=score_value.
+            
+            """
+            
+            ),
+            ("user", "{text}"),
+        ]
+    )
+
+    output_parser = StrOutputParser()
+
+    chain = (
+        {
+            "text": itemgetter("text")
+        }
+        | prompt
+        | llm
+        | output_parser
+    )
+
+    text =  chain.invoke({"text": text})
+
+    return extract_number(text)
     
