@@ -7,9 +7,22 @@ import os
 from langchain_core.prompts import ChatPromptTemplate
 from operator import itemgetter
 from langchain_core.output_parsers import StrOutputParser
+import re
 
 load_dotenv()
 groq_api_key = os.getenv("GROQ_API_KEY")
+
+def extract_keywords_from_brackets(text):
+    # Regex pattern to find text between square brackets
+    pattern = r"\[(.*?)\]"
+    matches = re.findall(pattern, text)
+    
+    # If there's a match, split the content inside the brackets by commas and strip extra spaces/quotes
+    if matches:
+        # Assume there's only one set of brackets with keywords
+        keywords = [keyword.strip().strip("'\"") for keyword in matches[0].split(',')]
+        return keywords
+    return []
 
 def get_text_chunks(text):
     text_splitter = RecursiveCharacterTextSplitter(
@@ -32,7 +45,7 @@ def get_search_keywords(search_text, vectorstore):
         ("system", """
             
             You are a helpful assistant that gives 5 keywords from the context that matches the given text.
-            Return the output as follows: ['keyword1', 'keyword2', 'keyword3', 'keyword4', 'keyword5']
+            Return the output only as follows: ['keyword1', 'keyword2', 'keyword3', 'keyword4', 'keyword5']. Without any description.
 
             Context: {context}
             
@@ -59,5 +72,9 @@ def get_search_keywords(search_text, vectorstore):
         | output_parser
     )
 
-    return chain.invoke({"text": search_text})
+    text =  chain.invoke({"text": search_text})
+
+    return extract_keywords_from_brackets(text)
+
+
     
