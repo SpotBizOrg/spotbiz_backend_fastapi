@@ -83,6 +83,7 @@ from schemas import CategoryKeywordsModel, SentimentModel
 from models import CategoryKeywords
 from fastapi.responses import JSONResponse
 from starlette.requests import Request
+from typing import Dict, List
 from vector_store import vector_store_manager
 from utils import get_search_keywords, get_sentiment_score
 
@@ -115,11 +116,23 @@ def create_vectorstore(keywords: CategoryKeywordsModel):
     try:
         # Instantiate CategoryKeywords with the request data
         category_keywords = CategoryKeywords(keywords)
-        print(category_keywords.get_keywords("hotels"))
+        # print(category_keywords.get_keywords("hotels"))
 
         # Append to the vector store
         vector_store_manager.append_vectorstore(category_keywords)
         return {"message": "Vector store created successfully"}
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        raise HTTPException(status_code=500, detail="An error occurred while processing the request.")
+    
+
+@app.post("/db/update")
+def update_vectorstore(items: Dict[str, List[str]]):
+    try:
+        # Append to the vector store
+        vector_store_manager.update_vectorstore(items)
+        return {"message": "Vector store updated successfully"}
+        
     except Exception as e:
         print(f"An error occurred: {e}")
         raise HTTPException(status_code=500, detail="An error occurred while processing the request.")

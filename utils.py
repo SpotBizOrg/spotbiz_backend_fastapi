@@ -50,8 +50,8 @@ def get_search_keywords(search_text, vectorstore):
         [
         ("system", """
             
-            You are a helpful assistant that gives 5 keywords from the context that matches the given text.
-            Return the output only as follows: ['keyword1', 'keyword2', 'keyword3', 'keyword4', 'keyword5']. Without any description.
+            You are a helpful assistant that gives 3 keywords from the context that matches the given text.
+            Return the output only as follows: ['keyword1', 'keyword2', 'keyword3']. Without any description.
 
             Context: {context}
             

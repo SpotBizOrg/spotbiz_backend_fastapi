@@ -89,6 +89,7 @@
 from langchain_chroma import Chroma
 from schemas import CategoryKeywordsModel
 from langchain_huggingface import HuggingFaceEmbeddings
+from typing import Dict, List
 from models import CategoryKeywords
 from utils import get_text_chunks
 
@@ -106,6 +107,33 @@ class VectorStoreManager:
             return vectorstore
         except Exception as e:
             print(f"Error initializing vector store: {e}")
+            return None
+
+    def update_vectorstore(self, items: Dict[str, List[str]]):
+        if self.vectorDatabase is None:
+            print("Vector store is not initialized.")
+            return None
+
+        try:
+            all_texts = {}
+            for key, value in items.items():
+                all_texts.update({key: value})
+            # for field_name in CategoryKeywordsModel.__annotations__:
+                # keywords = category_keywords.get_keywords(field_name)
+                # all_texts.update({field_name: keywords})
+            # print(f"All texts: {all_texts}")
+
+            all_text_str = str(all_texts)
+            print(type(all_text_str))
+
+
+            text_chunks = get_text_chunks(all_text_str)
+            embeddings = HuggingFaceEmbeddings()
+            vectorstore = Chroma.from_texts(text_chunks, embeddings, persist_directory="./chroma_db")
+            return vectorstore
+        
+        except Exception as e:
+            print(f"Error appending to vector store: {e}")
             return None
 
     def append_vectorstore(self, category_keywords: CategoryKeywords):
