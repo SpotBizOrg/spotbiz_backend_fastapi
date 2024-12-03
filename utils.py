@@ -63,7 +63,7 @@ def get_search_keywords(search_text, vectorstore):
     )
 
     retriever = vectorstore.as_retriever()
-    # docs = retriever.invoke("food")
+    # docs = retriever.invoke("hotels")
     # print(f"document objets: {docs}")
 
     output_parser = StrOutputParser()
